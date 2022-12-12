@@ -1,6 +1,7 @@
 ﻿using EmployeeClass.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Management;
 using System.Net;
 using System.Net.Sockets;
@@ -23,7 +24,7 @@ namespace ipandmac.Controllers
         {
             //IPAddress
             IPHostEntry iPHostEntry = Dns.GetHostEntry(Dns.GetHostName());
-            string ipAddress = Convert.ToString(iPHostEntry.AddressList.FirstOrDefault(address => address.AddressFamily == AddressFamily.InterNetwork));
+            string ipAddress = Convert.ToString(iPHostEntry.AddressList.FirstOrDefault(address => address.AddressFamily == AddressFamily.InterNetwork))??"NoIpAddress";
 
 
             //MACAddress
@@ -47,11 +48,20 @@ namespace ipandmac.Controllers
             client.IpAddress = ipAddress;
             client.MacAddress = macAddress;
 
-            _context.Clients.AddAsync(client);
+             await _context.Clients.AddAsync(client);
             _context.SaveChanges();
 
             return Ok(client);
         }
 
+        [HttpGet("getAddress")]
+        public async Task<IActionResult> getall()
+        {
+            var client =await _context.Clients.ToListAsync();
+            return Ok(client);
+        }
+
     }
+    
+    
 }
